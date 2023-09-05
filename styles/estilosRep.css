@@ -1,0 +1,109 @@
+QMainWindow{
+    background-image: url('img/back3.jpg');
+    background-position: center;
+}
+
+QDockWidget{
+    background-color: rgba(3, 3, 3, 0.8);
+    color: white;
+    font-weight: bold;
+}
+
+QListWidget{
+    background-color: rgba(0, 0, 0, 0.5);
+    font-family: 'Banaue', sans-serif;
+    font-size: 16px;
+    color: white;
+}
+
+QTabWidget::pane{
+    background: rgba(255, 255, 255, 0.1);
+    border: 0;
+}
+
+QTabBar::tab{
+    background-color: rgba(117, 117, 117, 0.5);
+    color: white;
+    font-weight: bold;
+}
+
+QPushButton#button_random{
+    background-color: white;
+    image: url(styles/img/random.png);
+    border-radius: 20px;
+    padding: 7px;
+}
+
+QPushButton#button_random:pressed{
+    background-color: gray;
+}
+
+QPushButton#button_before{
+    background-color: white;
+    image: url(styles/img/before.png);
+    border-radius: 20px;
+    padding: 7px;
+}
+
+QPushButton#button_before:pressed{
+    background-color: gray;
+}
+
+QPushButton#button_play{
+    background-color: white;
+    image: url(styles/img/play.png);
+    border-radius: 25px;
+    padding: 7px;
+}
+
+QPushButton#button_play:pressed{
+    background-color: gray;
+}
+
+QPushButton#button_next{
+    background-color: white;
+    image: url(styles/img/next.png);
+    border-radius: 20px;
+    padding: 7px;
+}
+
+QPushButton#button_next:pressed{
+    background-color: gray;
+}
+
+QPushButton#button_repeat{
+    background-color: white;
+    image: url(styles/img/repetir.png);
+    border-radius: 20px;
+    padding: 7px;
+}
+
+QPushButton#button_repeat:pressed{
+    background-color: gray;
+}
+
+QStatusBar {
+    background-color: rgb(78, 78, 78);
+    color: white;
+    font-weight: bold;
+}
+
+QMenuBar{
+    background-color: rgb(29, 29, 29);
+    color: white;
+    font-weight: bold;
+}
+
+QMenuBar QMenu{
+    background-color: rgb(29, 29, 29);
+    color: white;
+    font-weight: bold;
+}
+
+QMenuBar QMenu::item:selected{
+    background-color: gray;
+}
+
+QMenuBar QMenu::item:pressed{
+    background-color: gray;
+}

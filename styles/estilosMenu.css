@@ -1,0 +1,108 @@
+QMainWindow{
+    background-image: url('img/fondo.jpg');
+}
+
+QLabel#title{
+    font-family: 'Banaue', sans-serif;
+    font-size: 80px;
+    font-weight: bold;
+    color: white;
+}
+
+QPushButton#button_account,
+QPushButton#button_settings,
+QPushButton#button_exit{
+    background-color: transparent;
+    font-family: 'Banaue', sans-serif;
+    font-size: 35px;
+    color: white;
+}
+
+QPushButton#button_account:pressed,
+QPushButton#button_settings:pressed,
+QPushButton#button_exit:pressed{
+    color: whitesmoke;
+}
+
+QPushButton#button_account:hover,
+QPushButton#button_settings:hover,
+QPushButton#button_exit:hover{
+    color: crimson;
+}
+
+/* Login & register */
+
+QDialog{
+    background-color: cadetblue;
+}
+
+QLabel#title_style{
+    font-family: 'Banaue', sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    color: rgb(49, 49, 49);
+}
+
+QLabel#user_style,
+QLabel#password_style{
+    font-family: 'Banaue', sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+    color: rgb(49, 49, 49);
+}
+
+QCheckBox#checkbox-style{
+    font-family: 'Banaue', sans-serif;
+    font-size: 16px;
+    color: rgb(49, 49, 49);
+}
+
+QPushButton#login-button-style,
+QPushButton#register-button-style{
+    background-color: transparent;
+    font-family: 'Banaue', sans-serif;
+    font-weight: bold;
+    font-size: 24px;
+    color: rgb(49, 49, 49);
+}
+
+QPushButton#login-button-style:hover,
+QPushButton#register-button-style:hover{
+    color: crimson;
+}
+
+QLabel#message-style{
+    font-family: 'Banaue', sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    color: rgb(49, 49, 49);
+}
+
+QLabel#name-label-style,
+QLabel#lastname-label-style,
+QLabel#age-label-style,
+QLabel#gender-label-style,
+QLabel#city-label-style,
+QLabel#user-label-style,
+QLabel#email-label-style,
+QLabel#password-label-style,
+QLabel#confirm-label-style{
+    font-family: 'Banaue', sans-serif;
+    font-weight: bold;
+    font-size: 18px;
+    color: rgb(49, 49, 49);
+}
+
+QPushButton#create-button-style,
+QPushButton#cancel-button-style{
+    background-color: transparent;
+    font-family: 'Banaue', sans-serif;
+    font-weight: bold;
+    font-size: 24px;
+    color: rgb(49, 49, 49);
+}
+
+QPushButton#create-button-style:hover,
+QPushButton#cancel-button-style:hover{
+    color: crimson;
+}
