@@ -1,4 +1,6 @@
 import sys
+from pymongo import MongoClient
+import bcrypt
 from PyQt6.QtWidgets import QApplication, QDialog, QLabel, QLineEdit, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QMessageBox
 from PyQt6.QtGui import QIcon
 from login.registerSF import RegisterUserView
@@ -12,6 +14,7 @@ class LoginSF(QDialog):
         self.setModal(True)
         self.main_menu = main_menu
         self.set_up_UI()
+        self.consult_client_mongo()
         with open('styles/estilosMenu.css', 'r') as file:
             style = file.read()
         self.setStyleSheet(style)
@@ -91,25 +94,34 @@ class LoginSF(QDialog):
         """Cambia el modo de visualización de la contraseña según el estado de la casilla de verificación."""
         self.password_input.setEchoMode(QLineEdit.EchoMode.Normal) if clicked else self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
 
+    def consult_client_mongo(self):
+        self.client = MongoClient('mongodb://localhost:27017/')
+        self.db = self.client["RegisterSound"]
+        self.collection = self.db["SounsFreshUsers"]
+        
     def login_user_sf(self):
         """Función para el inicio de sesión del usuario."""
-        users = []
-        user_path = 'login\\user_SF.txt'
+        username_login = self.user_input.text()
+        password_login = self.password_input.text()
 
         try:
-            with open(user_path, 'r') as f:
-                users = [linea.strip("\n") for linea in f]
+            user_data = self.collection.find_one({"username": username_login})
+            if user_data:
+                hashed_password_db = user_data["hashed_password"]
 
-            login_information = f"{self.user_input.text()},{self.password_input.text()}"
-
-            if login_information in users:
-                QMessageBox.information(self, "Inicio sesion", "Inicio de sesion exitoso", QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
-                self.is_logged = True
-                self.main_menu.close()
-                self.open_main_window()
-                self.close()
+                if bcrypt.checkpw(password_login.encode('utf-8'), hashed_password_db):
+                    QMessageBox.information(self, "Login Success",
+                    "Login successful", QMessageBox.StandardButton.Ok,
+                    QMessageBox.StandardButton.Ok
+                    )
+                    self.is_logged = True
+                    self.main_menu.close()
+                    self.open_main_window()
+                    self.close()
+                else:
+                    QMessageBox.warning(self, "Login Failed", "Incorrect credentials", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
             else:
-                QMessageBox.warning(self, "Error", "Credenciales incorrectas", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+                QMessageBox.warning(self, "Login Failed", "User not found", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
 
         except FileNotFoundError as e:
             QMessageBox.warning(self, "Error BD", f"Base de datos de usuario no encontrada: {e}", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
@@ -126,8 +138,8 @@ class LoginSF(QDialog):
         self.reproductor_window = MainWindowRep()
         self.reproductor_window.show()
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    login_menu = LoginSF() # type: ignore
-    login_menu.setObjectName('login-background')
-    sys.exit(app.exec())
+# if __name__ == '__main__':
+#     app = QApplication(sys.argv)
+#     login_menu = LoginSF() # type: ignore
+#     login_menu.setObjectName('login-background')
+#     sys.exit(app.exec())

@@ -124,11 +124,19 @@ class RegisterUserView(QDialog):
     def cancel_register(self):
         self.close()
 
+    def calculate_age(self):
+        fecha_nacimiento = self.date_edit.date()
+        fecha_actual = QDate.currentDate()
+        age = fecha_actual.year() - fecha_nacimiento.year()
+        # if fecha_actual.month < fecha_nacimiento.month or (fecha_actual.month ==  fecha_nacimiento.month and fecha_actual.day < fecha_nacimiento.day):
+        #     age -= 1
+        return age
+
     def retrieve_user_data(self):
-        # Cambia esto por tu URL de conexión
+        # URL connection db
         self.client = MongoClient("mongodb://localhost:27017/")
-        self.db = self.client["RegisterSound"]  # Nombre de la base de datos
-        self.collection = self.db["SounsFreshUsers"]  # Nombre de la colección
+        self.db = self.client["RegisterSound"]  # Name Database
+        self.collection = self.db["SounsFreshUsers"]  # Name Collection
 
         cursor = self.collection.find({})
 
@@ -144,7 +152,6 @@ class RegisterUserView(QDialog):
             registration_date_db = document["registration_date"]
 
     def create_user(self):
-        # user_path = 'login\\user_SF.txt'  # Puedes eliminar esta línea ya que no se necesita más
         user_sf = self.username_input.text()
         password_sf = self.password.text()
         hashed_password = bcrypt.hashpw(password_sf.encode('utf-8'), bcrypt.gensalt())
@@ -152,23 +159,33 @@ class RegisterUserView(QDialog):
         registration_date = datetime.datetime.now()
 
         if not (password_sf and confirm_sf and user_sf):
-            QMessageBox.warning(self, 'Error', 'Please enter valid data',
-                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            QMessageBox.warning(self, 'Error',
+            'Please enter valid data',
+            QMessageBox.StandardButton.Close,
+            QMessageBox.StandardButton.Close)
         elif password_sf != confirm_sf:
-            QMessageBox.warning(self, 'Error', 'Passwords do not match',
-                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            QMessageBox.warning(self, 'Error',
+            'Passwords do not match',
+            QMessageBox.StandardButton.Close,
+            QMessageBox.StandardButton.Close)
         else:
             try:
                 # Validación de usuario y contraseña
                 if len(user_sf) > 10:
-                    QMessageBox.warning(self, 'Error', 'Username must be up to 10 characters',
-                                        QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+                    QMessageBox.warning(self, 'Error',
+                    'Username must be up to 10 characters',
+                    QMessageBox.StandardButton.Close,
+                    QMessageBox.StandardButton.Close)
                 elif not (user_sf.isalnum() and user_sf.isascii()):
-                    QMessageBox.warning(self, 'Error', 'Username can only contain letters and numbers',
-                                        QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+                    QMessageBox.warning(self, 'Error',
+                    'Username can only contain letters and numbers',
+                    QMessageBox.StandardButton.Close,
+                    QMessageBox.StandardButton.Close)
                 elif not (8 <= len(password_sf) <= 20 and any(c.isdigit() for c in password_sf) and any(c.isupper() for c in password_sf) and any(not c.isalnum() for c in password_sf)):
-                    QMessageBox.warning(self, 'Error', 'Password must be 8-20 characters long and include at least one uppercase letter, one digit, and one special character',
-                                        QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+                    QMessageBox.warning(self, 'Error', 
+                    'Password must be 8-20 characters long and include at least one uppercase letter, one digit, and one special character',
+                    QMessageBox.StandardButton.Close, 
+                    QMessageBox.StandardButton.Close)
                 else:
                     # Validación de nombre y apellido (name_sf y lastname_sf)
                     if not (self.name_input.text().isalpha() and self.lastname_input.text().isalpha()):
@@ -188,16 +205,16 @@ class RegisterUserView(QDialog):
                                 '@gmail.com', '@outlook.com', '@hotmail.com']
                             if not any(domain in self.email_input.text() for domain in valid_email_domains):
                                 QMessageBox.warning(self, 'Error',
-                                                    'Invalid email format. Please use @gmail.com, @outlook.com, or @hotmail.com',
-                                                    QMessageBox.StandardButton.Close,
-                                                    QMessageBox.StandardButton.Close)
+                                'Invalid email format. Please use @gmail.com, @outlook.com, or @hotmail.com',
+                                QMessageBox.StandardButton.Close,
+                                QMessageBox.StandardButton.Close)
                             else:
                                 # Resto del proceso de creación de usuario
                                 # Utiliza los datos recuperados de la base de datos en lugar de user_sf y otros
                                 new_user = {
                                     "name": self.name_input.text(),
                                     "last_name": self.lastname_input.text(),
-                                    "age": self.date_edit.date().year(),
+                                    "age": self.calculate_age(),
                                     "gender": self.gender_selection.currentText(),
                                     "country": self.city_selection.currentText(),
                                     "username": self.username_input.text(),
@@ -208,12 +225,12 @@ class RegisterUserView(QDialog):
 
                                 # Inserta el nuevo usuario en la base de datos
                                 self.collection.insert_one(new_user)
-
-
-                                QMessageBox.information(self, 'Successful Registration',
-                                                        'User created successfully',
-                                                        QMessageBox.StandardButton.Ok,
-                                                        QMessageBox.StandardButton.Ok)
+                                QMessageBox.information(self, 
+                                'Successful Registration',
+                                'User created successfully',
+                                QMessageBox.StandardButton.Ok,
+                                QMessageBox.StandardButton.Ok)
+                                
                                 self.close()
             except FileNotFoundError as e:
                 QMessageBox.warning(self, 'Error',
