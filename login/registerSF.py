@@ -128,8 +128,10 @@ class RegisterUserView(QDialog):
         fecha_nacimiento = self.date_edit.date()
         fecha_actual = QDate.currentDate()
         age = fecha_actual.year() - fecha_nacimiento.year()
-        # if fecha_actual.month < fecha_nacimiento.month or (fecha_actual.month ==  fecha_nacimiento.month and fecha_actual.day < fecha_nacimiento.day):
-        #     age -= 1
+
+        if fecha_actual.month() < fecha_nacimiento.month() or (fecha_actual.month() == fecha_nacimiento.month() and fecha_actual.day() < fecha_nacimiento.day()):
+            age -= 1
+
         return age
 
     def retrieve_user_data(self):
@@ -189,8 +191,10 @@ class RegisterUserView(QDialog):
                 else:
                     # Validación de nombre y apellido (name_sf y lastname_sf)
                     if not (self.name_input.text().isalpha() and self.lastname_input.text().isalpha()):
-                        QMessageBox.warning(self, 'Error', 'Name and lastname can only contain letters',
-                                            QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+                        QMessageBox.warning(self, 'Error', 
+                        'Name and lastname can only contain letters',
+                        QMessageBox.StandardButton.Close, 
+                        QMessageBox.StandardButton.Close)
                     else:
                         # Validación de edad (age_sf)
                         min_age = QDate.currentDate().addYears(-18)
