@@ -3,8 +3,8 @@ from pymongo import MongoClient
 import bcrypt
 from PyQt6.QtWidgets import QApplication, QDialog, QLabel, QLineEdit, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QMessageBox
 from PyQt6.QtGui import QIcon
-from login.registerSF import RegisterUserView
-from reproductor.repr import MainWindowRep
+from src.login.registerSF import RegisterUserView
+from src.reproductor.reproductor_UI import MainWindowRep
 
 class LoginSF(QDialog):
     """Ventana de inicio de sesión de Sound Fresh."""

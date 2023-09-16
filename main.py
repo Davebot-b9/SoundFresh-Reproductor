@@ -2,7 +2,7 @@ import sys
 from PyQt6.QtWidgets import QApplication,QMainWindow, QLabel, QWidget, QPushButton, QVBoxLayout
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
-from login.loginSF import LoginSF
+from src.login.loginSF import LoginSF
 
 class MainMenu(QMainWindow):
     def __init__(self):

@@ -2,11 +2,9 @@ import sys
 import os
 import random
 from PyQt6.QtCore import Qt, QStandardPaths, QUrl
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton, QDockWidget, QStatusBar,
-                            QTabWidget, QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QFileDialog, QListWidgetItem, QMessageBox)
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton, QDockWidget, QStatusBar, QTabWidget, QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QFileDialog, QListWidgetItem, QMessageBox)
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 from PyQt6.QtGui import QIcon, QPixmap, QAction, QKeySequence
-
 
 class MainWindowRep(QMainWindow):
     def __init__(self):
@@ -18,11 +16,13 @@ class MainWindowRep(QMainWindow):
         with open('styles/estilosRep.css', 'r') as file:
             style = file.read()
         self.setStyleSheet(style)
+        #self.create_player()
+        self.song_list = []  # Inicializa una lista vacía para almacenar las canciones
         self.player = None
         self.playing_reproductor = False
         self.current_index = -1
+        self.current_position = 0
         #self.is_random = False
-        
 
     def initialize_ui(self):
         self.setGeometry(100, 100, 1020, 600)
@@ -65,7 +65,7 @@ class MainWindowRep(QMainWindow):
         button_random = QPushButton()
         button_random.setObjectName('button_random')
         button_before = QPushButton()
-        # button_before.clicked.connect(self.play_previous_song)
+        button_before.clicked.connect(self.play_previous_song)
         button_before.setObjectName('button_before')
 
         self.button_play = QPushButton()
@@ -155,12 +155,12 @@ class MainWindowRep(QMainWindow):
         icon = QIcon('img/music.png')
         self.songs_list.clear()
         self.current_index = -1
+        self.song_list = []  # Inicializa la lista de canciones antes de cargar las canciones
         for archivo in os.listdir(self.current_music_folder):
             ruta_archivo = os.path.join(self.current_music_folder, archivo)
             if ruta_archivo.endswith(".mp3"):
-                nombre_archivo, _ = os.path.splitext(
-                    archivo)  # Dividir nombre y extensión
-                # Agregar solo el nombre
+                self.song_list.append(ruta_archivo)  # Agrega la ruta completa del archivo a la lista
+                nombre_archivo, _ = os.path.splitext(archivo)
                 item = QListWidgetItem(nombre_archivo)
                 item.setIcon(icon)
                 self.songs_list.addItem(item)
@@ -183,36 +183,46 @@ class MainWindowRep(QMainWindow):
             self.next_song()
 
     def play_pause_song(self):
-        if self.playing_reproductor:
-            self.button_play.setStyleSheet(
-                "image: url('styles/img/stop.png');")
-            self.player.pause()
-            self.playing_reproductor = False
-        else:
-            self.button_play.setStyleSheet(
-                "image: url('styles/img/play.png');")
-            self.player.play()
-            self.playing_reproductor = True
+        if len(self.song_list) > 0:
+            if self.playing_reproductor:
+                self.button_play.setStyleSheet(
+                    "image: url('styles/img/play.png');")
+                # Pausa la reproducción y almacena la posición actual
+                self.current_position = self.player.position()
+                self.player.pause()
+                self.playing_reproductor = False
+            else:
+                self.button_play.setStyleSheet(
+                    "image: url('styles/img/stop.png');")
+                # Verifica si se ha cargado una canción previamente
+                if self.current_index >= 0:
+                    # Reanuda la reproducción desde la posición almacenada
+                    self.player.setPosition(self.current_position)
+                    self.player.play()
+                    self.playing_reproductor = True
+                else:
+                    self.current_index = 0
+                    self.handle_song_selection()  # Carga y reproduce la primera canción
+
 
     def next_song(self):
         if self.current_index < self.songs_list.count() - 1:
             self.current_index += 1
             self.handle_song_selection()
-
+    
+    def play_previous_song(self):
+        if self.current_index > 0:
+            self.current_index -= 1
+            self.handle_song_selection()
+            
     def handle_song_selection(self):
-        selected_item = self.songs_list.currentItem()
-        if selected_item:
-            # Agregar de nuevo la extensión .mp3
-            song_name = selected_item.data(0) + ".mp3"
-            song_folder_path = os.path.join(
-                self.current_music_folder, song_name)
-            # Reproducir canción con la ruta completa
+        if self.current_index >= 0 and self.current_index < len(self.song_list):
+            song_folder_path = self.song_list[self.current_index]
             self.create_player()
             source = QUrl.fromLocalFile(song_folder_path)
             self.player.setSource(source)
             self.playing_reproductor = True
-            self.button_play.setStyleSheet(
-                "image: url('styles/img/stop.png');")
+            self.button_play.setStyleSheet("image: url('styles/img/stop.png');")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

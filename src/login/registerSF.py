@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import (QLabel, QPushButton, QDateEdit, QLineEdit,
                             QComboBox, QFormLayout, QHBoxLayout, QMessageBox, QDialog)
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt, QDate
-from login.constants import city, gender
+from src.login.constants import city, gender
 
 
 class RegisterUserView(QDialog):
