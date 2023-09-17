@@ -16,13 +16,12 @@ class MainWindowRep(QMainWindow):
         with open('styles/estilosRep.css', 'r') as file:
             style = file.read()
         self.setStyleSheet(style)
-        #self.create_player()
         self.song_list = []  # Inicializa una lista vacía para almacenar las canciones
         self.player = None
         self.playing_reproductor = False
         self.current_index = -1
         self.current_position = 0
-        #self.is_random = False
+        self.is_random = False
 
     def initialize_ui(self):
         self.setGeometry(100, 100, 1020, 600)
@@ -62,8 +61,10 @@ class MainWindowRep(QMainWindow):
         song_image.setPixmap(pixmap)
         song_image.setScaledContents(True)
 
-        button_random = QPushButton()
-        button_random.setObjectName('button_random')
+        self.button_random = QPushButton()
+        self.button_random.clicked.connect(self.random_mode_toggle)
+        self.button_random.setObjectName('button_random')
+        
         button_before = QPushButton()
         button_before.clicked.connect(self.play_previous_song)
         button_before.setObjectName('button_before')
@@ -78,13 +79,13 @@ class MainWindowRep(QMainWindow):
         button_repeat = QPushButton()
         button_repeat.setObjectName('button_repeat')
 
-        button_random.setFixedSize(40, 40)
+        self.button_random.setFixedSize(40, 40)
         button_before.setFixedSize(40, 40)
         self.button_play.setFixedSize(60, 60)
         button_next.setFixedSize(40, 40)
         button_repeat.setFixedSize(40, 40)
 
-        buttons_h_box.addWidget(button_random)
+        buttons_h_box.addWidget(self.button_random)
         buttons_h_box.addWidget(button_before)
         buttons_h_box.addWidget(self.button_play)
         buttons_h_box.addWidget(button_next)
@@ -127,7 +128,7 @@ class MainWindowRep(QMainWindow):
         menu_view.addAction(self.listar_musica_action)
 
     def create_dock(self):
-        self.songs_list = QListWidget()
+        self.songs_list_panel = QListWidget()
         self.dock = QDockWidget()
         self.dock.setWindowTitle('Lista de canciones')
         self.dock.setFixedWidth(300)
@@ -135,9 +136,9 @@ class MainWindowRep(QMainWindow):
             Qt.DockWidgetArea.LeftDockWidgetArea |
             Qt.DockWidgetArea.RightDockWidgetArea
         )
-        self.songs_list.itemSelectionChanged.connect(
+        self.songs_list_panel.itemSelectionChanged.connect(
             self.handle_song_selection)
-        self.dock.setWidget(self.songs_list)
+        self.dock.setWidget(self.songs_list_panel)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
 
     def list_music(self):
@@ -153,7 +154,7 @@ class MainWindowRep(QMainWindow):
         self.current_music_folder = QFileDialog.getExistingDirectory(
             None, "Selecciona una carpeta", initial_dir)
         icon = QIcon('img/music.png')
-        self.songs_list.clear()
+        self.songs_list_panel.clear()
         self.current_index = -1
         self.song_list = []  # Inicializa la lista de canciones antes de cargar las canciones
         for archivo in os.listdir(self.current_music_folder):
@@ -163,7 +164,7 @@ class MainWindowRep(QMainWindow):
                 nombre_archivo, _ = os.path.splitext(archivo)
                 item = QListWidgetItem(nombre_archivo)
                 item.setIcon(icon)
-                self.songs_list.addItem(item)
+                self.songs_list_panel.addItem(item)
 
     def create_player(self):
         if self.player:
@@ -204,19 +205,29 @@ class MainWindowRep(QMainWindow):
                     self.current_index = 0
                     self.handle_song_selection()  # Carga y reproduce la primera canción
 
-
     def next_song(self):
-        if self.current_index < self.songs_list.count() - 1:
-            self.current_index += 1
+        if len(self.song_list) > 0:
+            if self.is_random:
+                self.current_index = random.randint(0, len(self.song_list) - 1)
+            else:
+                if self.current_index < self.songs_list_panel.count() -1:
+                    self.current_index += 1
             self.handle_song_selection()
-    
+
     def play_previous_song(self):
         if self.current_index > 0:
             self.current_index -= 1
             self.handle_song_selection()
-            
+
+    def random_mode_toggle(self):
+        self.is_random = not self.is_random  # Cambia el modo de reproducción aleatoria
+        if self.is_random:
+            self.button_random.setStyleSheet("background-color: rgba(3, 3, 3, 0.8);")
+        else:
+            self.button_random.setStyleSheet("background-color: white;")
+
     def handle_song_selection(self):
-        if self.current_index >= 0 and self.current_index < len(self.song_list):
+        if len(self.song_list) > 0 and self.current_index >= 0 and self.current_index < len(self.song_list):
             song_folder_path = self.song_list[self.current_index]
             self.create_player()
             source = QUrl.fromLocalFile(song_folder_path)
