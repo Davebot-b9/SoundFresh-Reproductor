@@ -22,6 +22,7 @@ class MainWindowRep(QMainWindow):
         self.current_index = -1
         self.current_position = 0
         self.is_random = False
+        self.is_repeat = False
 
     def initialize_ui(self):
         self.setGeometry(100, 100, 1020, 600)
@@ -76,20 +77,22 @@ class MainWindowRep(QMainWindow):
         button_next = QPushButton()
         button_next.clicked.connect(self.next_song)
         button_next.setObjectName('button_next')
-        button_repeat = QPushButton()
-        button_repeat.setObjectName('button_repeat')
+        
+        self.button_repeat = QPushButton()
+        self.button_repeat.clicked.connect(self.toggle_repeat_mode)
+        self.button_repeat.setObjectName('button_repeat')
 
         self.button_random.setFixedSize(40, 40)
         button_before.setFixedSize(40, 40)
         self.button_play.setFixedSize(60, 60)
         button_next.setFixedSize(40, 40)
-        button_repeat.setFixedSize(40, 40)
+        self.button_repeat.setFixedSize(40, 40)
 
         buttons_h_box.addWidget(self.button_random)
         buttons_h_box.addWidget(button_before)
         buttons_h_box.addWidget(self.button_play)
         buttons_h_box.addWidget(button_next)
-        buttons_h_box.addWidget(button_repeat)
+        buttons_h_box.addWidget(self.button_repeat)
 
         buttons_container = QWidget()
         buttons_container.setLayout(buttons_h_box)
@@ -181,7 +184,11 @@ class MainWindowRep(QMainWindow):
         if status == QMediaPlayer.MediaStatus.LoadedMedia:
             self.player.play()
         elif status == QMediaPlayer.MediaStatus.EndOfMedia:
-            self.next_song()
+            if self.is_repeat:
+                self.player.setPosition(0)
+                self.player.play()
+            else:
+                self.next_song()
 
     def play_pause_song(self):
         if len(self.song_list) > 0:
@@ -210,8 +217,10 @@ class MainWindowRep(QMainWindow):
             if self.is_random:
                 self.current_index = random.randint(0, len(self.song_list) - 1)
             else:
-                if self.current_index < self.songs_list_panel.count() -1:
+                if self.current_index < self.songs_list_panel.count() - 1:
                     self.current_index += 1
+                else:
+                    self.current_index = 0  # Regresa al principio
             self.handle_song_selection()
 
     def play_previous_song(self):
@@ -225,6 +234,13 @@ class MainWindowRep(QMainWindow):
             self.button_random.setStyleSheet("background-color: rgba(3, 3, 3, 0.8);")
         else:
             self.button_random.setStyleSheet("background-color: white;")
+    
+    def toggle_repeat_mode(self):
+        self.is_repeat = not self.is_repeat
+        if self.is_repeat:
+            self.button_repeat.setStyleSheet("background-color: rgba(3, 3, 3, 0.8);")
+        else:
+            self.button_repeat.setStyleSheet("background-color: white;")
 
     def handle_song_selection(self):
         if len(self.song_list) > 0 and self.current_index >= 0 and self.current_index < len(self.song_list):
