@@ -3,29 +3,29 @@
 SoundFresh es un emocionante proyecto que demuestra y amplía mis habilidades en el desarrollo de aplicaciones en Python utilizando la potente biblioteca PyQt6. Este proyecto va más allá de ser solo un reproductor de música; es una muestra de mis capacidades técnicas y creativas en acción.
 Tecnologías Destacadas
 
-En este proyecto, he aplicado varias tecnologías clave:
+## En este proyecto, he aplicado varias tecnologías clave:
 
-    PyQt6: Utilicé PyQt6 para crear una interfaz de usuario atractiva y funcional para el reproductor de música. Esta biblioteca me permitió diseñar una experiencia de usuario fluida y atractiva.
+- PyQt6: Utilicé PyQt6 para crear una interfaz de usuario atractiva y funcional para el reproductor de música. Esta biblioteca me permitió diseñar una experiencia de usuario fluida y atractiva.
 
-    MongoDB: Implementé MongoDB como base de datos para gestionar los datos de la aplicación. Utilicé MongoDB para almacenar información de canciones, artistas y usuarios, permitiendo un acceso eficiente a los datos y una gestión flexible.
+- MongoDB: Implementé MongoDB como base de datos para gestionar los datos de la aplicación. Utilicé MongoDB para almacenar información de canciones, artistas y usuarios, permitiendo un acceso eficiente a los datos y una gestión flexible.
 
-    Captura de Datos y Peticiones de Usuario: Diseñé una interfaz que permite a los usuarios explorar y descubrir música de manera intuitiva. Esto incluye la capacidad de buscar y seleccionar canciones, artistas y géneros, así como la creación de listas de reproducción personalizadas.
+- Captura de Datos y Peticiones de Usuario: Diseñé una interfaz que permite a los usuarios explorar y descubrir música de manera intuitiva. Esto incluye la capacidad de buscar y seleccionar canciones, artistas y géneros, así como la creación de listas de reproducción personalizadas.
 
-    Validación de Datos y Manejo de Excepciones: En SoundFresh, la validación de datos y el manejo de excepciones son esenciales. Implementé mecanismos de validación de entrada del usuario para garantizar la integridad de los datos y proporcionar retroalimentación útil en caso de errores.
+- Validación de Datos y Manejo de Excepciones: En SoundFresh, la validación de datos y el manejo de excepciones son esenciales. Implementé mecanismos de validación de entrada del usuario para garantizar la integridad de los datos y proporcionar retroalimentación útil en caso de errores.
 
-Características Destacadas
+## Características Destacadas
 
 El reproductor de música de SoundFresh ofrece una serie de características destacadas:
 
-    Descubrimiento Musical: Los usuarios pueden explorar una amplia variedad de géneros musicales y descubrir nuevos artistas independientes. SoundFresh ofrece una plataforma para destacar y apoyar talentos emergentes.
+- Descubrimiento Musical: Los usuarios pueden explorar una amplia variedad de géneros musicales y descubrir nuevos artistas independientes. SoundFresh ofrece una plataforma para destacar y apoyar talentos emergentes.
 
-    Reproducción de Música: La funcionalidad principal de SoundFresh es la reproducción de música. Los usuarios pueden crear listas de reproducción personalizadas, reproducir canciones en orden o al azar, y experimentar una experiencia auditiva inmersiva.
+- Reproducción de Música: La funcionalidad principal de SoundFresh es la reproducción de música. Los usuarios pueden crear listas de reproducción personalizadas, reproducir canciones en orden o al azar, y experimentar una experiencia auditiva inmersiva.
 
-    Interfaz Atractiva: La interfaz de usuario de SoundFresh es intuitiva y atractiva. Los usuarios pueden navegar fácilmente por la aplicación, buscar canciones y artistas, y disfrutar de una experiencia de usuario fluida.
+- Interfaz Atractiva: La interfaz de usuario de SoundFresh es intuitiva y atractiva. Los usuarios pueden navegar fácilmente por la aplicación, buscar canciones y artistas, y disfrutar de una experiencia de usuario fluida.
 
-    Gestión de Datos Eficiente: SoundFresh utiliza MongoDB para almacenar y gestionar datos de manera eficiente. Esto garantiza un acceso rápido a la información y una experiencia de usuario sin problemas.
+- Gestión de Datos Eficiente: SoundFresh utiliza MongoDB para almacenar y gestionar datos de manera eficiente. Esto garantiza un acceso rápido a la información y una experiencia de usuario sin problemas.
 
-Aprendizaje Continuo
+## Aprendizaje Continuo
 
 Este proyecto también representa un compromiso con el aprendizaje continuo. A lo largo del desarrollo de SoundFresh, he adquirido nuevas habilidades y conocimientos en Python, PyQt6, MongoDB y el desarrollo de aplicaciones de escritorio.
 Futuras Mejoras
