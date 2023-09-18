@@ -29,4 +29,8 @@ city = ["México",
         "Emiratos Árabes Unidos(EAU)",
         "Arabia Saudita"
     ]
-gender = ["Masculine", "Female", "Other"]
+gender = [
+    "Masculine", 
+    "Female", 
+    "Other"
+    ]

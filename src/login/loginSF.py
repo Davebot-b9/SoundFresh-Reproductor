@@ -4,7 +4,7 @@ import bcrypt
 from PyQt6.QtWidgets import QApplication, QDialog, QLabel, QLineEdit, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QMessageBox
 from PyQt6.QtGui import QIcon
 from src.login.registerSF import RegisterUserView
-from src.reproductor.reproductor_UI import MainWindowRep
+from src.reproductor.reprocSF import MainWindowRep
 
 class LoginSF(QDialog):
     """Ventana de inicio de sesión de Sound Fresh."""
@@ -137,9 +137,3 @@ class LoginSF(QDialog):
         """Abre la ventana principal después de un inicio de sesión exitoso."""
         self.reproductor_window = MainWindowRep()
         self.reproductor_window.show()
-
-# if __name__ == '__main__':
-#     app = QApplication(sys.argv)
-#     login_menu = LoginSF() # type: ignore
-#     login_menu.setObjectName('login-background')
-#     sys.exit(app.exec())
