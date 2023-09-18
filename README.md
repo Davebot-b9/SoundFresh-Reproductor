@@ -28,7 +28,8 @@ El reproductor de música de SoundFresh ofrece una serie de características des
 ## Aprendizaje Continuo
 
 Este proyecto también representa un compromiso con el aprendizaje continuo. A lo largo del desarrollo de SoundFresh, he adquirido nuevas habilidades y conocimientos en Python, PyQt6, MongoDB y el desarrollo de aplicaciones de escritorio.
-Futuras Mejoras
+
+## Futuras Mejoras
 
 SoundFresh es un proyecto en constante evolución. En el futuro, planeo agregar más características emocionantes, como la integración de redes sociales para compartir música, recomendaciones personalizadas y una mayor expansión de la base de datos de artistas independientes.
 
