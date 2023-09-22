@@ -2,8 +2,7 @@ from pymongo import MongoClient
 import bcrypt
 import datetime
 from PyQt6 import QtCore
-from PyQt6.QtWidgets import (QLabel, QPushButton, QDateEdit, QLineEdit,
-                            QComboBox, QFormLayout, QHBoxLayout, QMessageBox, QDialog)
+from PyQt6.QtWidgets import (QLabel, QPushButton, QDateEdit, QLineEdit, QComboBox, QFormLayout, QHBoxLayout, QMessageBox, QDialog)
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt, QDate
 from src.login.constants import city, gender

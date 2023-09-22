@@ -32,7 +32,7 @@ class MainMenu(QMainWindow):
         self.settings_button.clicked.connect(self.settings)
 
         self.exit_button = QPushButton('Salir')
-        self.exit_button.setObjectName('button_exit')
+        self.exit_button.setObjectName('button_exit') # type: ignore
         self.exit_button.clicked.connect(self.exit)
 
         elements_main_v_box = QVBoxLayout()

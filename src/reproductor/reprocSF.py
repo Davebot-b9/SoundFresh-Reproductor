@@ -1,10 +1,16 @@
-import sys
 import os
 import random
-from PyQt6.QtCore import Qt, QStandardPaths, QUrl
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton, QDockWidget, QStatusBar, QTabWidget, QWidget, QHBoxLayout, QVBoxLayout, QListWidget, QFileDialog, QListWidgetItem, QMessageBox)
-from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
-from PyQt6.QtGui import QIcon, QPixmap, QAction, QKeySequence
+import sys
+from PyQt6.QtCore import QStandardPaths, Qt, QUrl
+from PyQt6.QtGui import QAction, QIcon, QKeySequence, QPixmap
+from PyQt6.QtMultimedia import QAudioOutput, QMediaPlayer
+from PyQt6.QtWidgets import (QApplication, QDockWidget, QFileDialog,
+                            QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
+                            QMainWindow, QMessageBox, QPushButton, QStatusBar,
+                            QTabWidget, QVBoxLayout, QWidget)
+
+from .form_playlist import FormListMusic
+#from main import MainMenu
 
 class MainWindowRep(QMainWindow):
     def __init__(self):
@@ -38,12 +44,13 @@ class MainWindowRep(QMainWindow):
     def generate_main_window(self):
         tab_bar = QTabWidget(self)
         self.reproductor_container = QWidget()
+        self.playlist_saved_user = QWidget()
         self.settings_container = QWidget()
-        tab_bar.addTab(self.reproductor_container,
-                    "Reproductor")
-        tab_bar.addTab(self.settings_container,
-                    "Settings")
+        tab_bar.addTab(self.reproductor_container, "Reproductor")
+        tab_bar.addTab(self.playlist_saved_user, "Biblioteca")
+        tab_bar.addTab(self.settings_container, "Ajustes")
         self.generate_repro_tab()
+        self.generate_playlist_user()
         self.generate_settings_tab()
 
         tab_h_box = QHBoxLayout()
@@ -102,6 +109,41 @@ class MainWindowRep(QMainWindow):
 
         self.reproductor_container.setLayout(main_v_box)
 
+    def generate_playlist_user(self):
+        main_v_box = QVBoxLayout()
+        buttons_h_box  = QHBoxLayout()
+        label_h_box = QHBoxLayout()
+        
+        name_playlist = QLabel('Nombre:')
+        user_playlist_created = QLabel('Usuario:')
+        date_created_playlist = QLabel('Fecha de creación:')
+        
+        label_h_box.addWidget(name_playlist)
+        label_h_box.addWidget(user_playlist_created)        
+        label_h_box.addWidget(date_created_playlist)
+        
+        label_container = QWidget()
+        label_container.setLayout(label_h_box)        
+
+        button_charge = QPushButton('Cargar')
+        button_charge.setObjectName('charge-style-button')
+        button_modify = QPushButton('Modificar')
+        button_modify.setObjectName('modify-style-button')
+        button_delete = QPushButton('Eliminar')
+        button_delete.setObjectName('delete-style-button')
+        
+        buttons_h_box.addWidget(button_charge)
+        buttons_h_box.addWidget(button_modify)
+        buttons_h_box.addWidget(button_delete)
+        
+        button_container = QWidget()
+        button_container.setLayout(buttons_h_box)
+        
+        main_v_box.addWidget(label_container)
+        main_v_box.addWidget(button_container)
+        
+        self.playlist_saved_user.setLayout(main_v_box)
+
     def generate_settings_tab(self):
         pass
 
@@ -121,11 +163,29 @@ class MainWindowRep(QMainWindow):
         self.open_folder_music_action.setStatusTip("Abre tu carpeta de música")
         # signal
         self.open_folder_music_action.triggered.connect(self.open_music)
+        
+        self.save_playlist_action = QAction('Guardar Playlist', self)
+        self.save_playlist_action.setShortcut(QKeySequence("Ctrl+G"))
+        self.save_playlist_action.setStatusTip("Guarda la playlist cargada")
+        self.save_playlist_action.triggered.connect(self.playlist_save)
+        
+        self.sign_off_action = QAction('Cerrar sesión', self)
+        self.sign_off_action.setShortcut(QKeySequence("Ctrl+W"))
+        self.sign_off_action.setStatusTip("Cerrar sesion actual")
+        self.sign_off_action.triggered.connect(self.sign_off)
+        
+        self.exit_repr_action = QAction('Salir', self)
+        self.exit_repr_action.setShortcut(QKeySequence("Ctrl+E"))
+        self.exit_repr_action.setStatusTip("Salir del reproductor")
+        self.exit_repr_action.triggered.connect(self.exit_repr)
 
     def create_menu(self):
         self.menuBar()
         menu_file = self.menuBar().addMenu("File")
         menu_file.addAction(self.open_folder_music_action)
+        menu_file.addAction(self.save_playlist_action)
+        menu_file.addAction(self.sign_off_action)
+        menu_file.addAction(self.exit_repr_action)
 
         menu_view = self.menuBar().addMenu("View")
         menu_view.addAction(self.listar_musica_action)
@@ -168,6 +228,14 @@ class MainWindowRep(QMainWindow):
                 item = QListWidgetItem(nombre_archivo)
                 item.setIcon(icon)
                 self.songs_list_panel.addItem(item)
+    
+    def playlist_save(self):
+        if len(self.song_list) > 0:
+            self.form_new_playlist = FormListMusic()
+            self.form_new_playlist.songs = self.song_list
+            self.form_new_playlist.show()
+        else:
+            QMessageBox.warning(self, "Empty Song list", "No se ha cargado una carpeta con algun archivo .mp3", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
 
     def create_player(self):
         if self.player:
@@ -250,6 +318,15 @@ class MainWindowRep(QMainWindow):
             self.player.setSource(source)
             self.playing_reproductor = True
             self.button_play.setStyleSheet("image: url('styles/img/stop.png');")
+    
+    def sign_off(self):
+        # self.close()
+        # self.main_window = MainMenu()
+        # self.main_window.show()
+        pass
+    
+    def exit_repr(self):
+        self.close()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
