@@ -1,7 +1,7 @@
 
 import sys
 import sqlite3
-from PyQt6.QtWidgets import QApplication, QDialog, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox, QHBoxLayout
+from PyQt6.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox, QHBoxLayout, QWidget
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import pyqtSignal # Import pyqtSignal
 from src.database.db_setup import get_db_connection # Import SQLite connection function
@@ -79,9 +79,9 @@ class FormListMusic(QDialog):
             return
             
         if not self.songs_to_save:
-             QMessageBox.warning(self, "Lista Vacía", "No hay canciones en la lista actual para guardar.", QMessageBox.StandardButton.Ok)
-             return
-             
+            QMessageBox.warning(self, "Lista Vacía", "No hay canciones en la lista actual para guardar.", QMessageBox.StandardButton.Ok)
+            return
+        
         conn = None
         try:
             conn = get_db_connection()
@@ -112,8 +112,8 @@ class FormListMusic(QDialog):
             QMessageBox.critical(self, 'Error de Base de Datos', f'No se pudo guardar la playlist: {e}', QMessageBox.StandardButton.Ok)
             if conn: conn.rollback() # Rollback changes on error
         except Exception as e:
-             QMessageBox.critical(self, 'Error Inesperado', f'Ocurrió un error inesperado: {e}', QMessageBox.StandardButton.Ok)
-             if conn: conn.rollback()
+            QMessageBox.critical(self, 'Error Inesperado', f'Ocurrió un error inesperado: {e}', QMessageBox.StandardButton.Ok)
+            if conn: conn.rollback()
         finally:
             if conn:
                 conn.close() # Ensure connection is closed

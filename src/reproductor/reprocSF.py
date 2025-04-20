@@ -12,12 +12,14 @@ from PyQt6.QtWidgets import (QApplication, QDockWidget, QFileDialog,
                             QTabWidget, QVBoxLayout, QWidget)
 
 from .form_playlist import FormListMusic
-from src.database.db_setup import get_db_connection # Import SQLite connection function
+# Import SQLite connection function
+from src.database.db_setup import get_db_connection
+
 
 class MainWindowRep(QMainWindow):
-    def __init__(self, user_id=None): # Accept user_id
+    def __init__(self, user_id=None):  # Accept user_id
         super().__init__()
-        self.current_user_id = user_id # Store user_id
+        self.current_user_id = user_id  # Store user_id
         self.initialize_ui()
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
@@ -32,7 +34,7 @@ class MainWindowRep(QMainWindow):
         self.current_position = 0
         self.is_random = False
         self.is_repeat = False
-        self.load_user_playlists() # Load playlists when window opens
+        self.load_user_playlists()  # Load playlists when window opens
 
     def initialize_ui(self):
         self.setGeometry(100, 100, 1020, 600)
@@ -48,13 +50,13 @@ class MainWindowRep(QMainWindow):
     def generate_main_window(self):
         tab_bar = QTabWidget(self)
         self.reproductor_container = QWidget()
-        self.playlist_saved_user = QWidget() # Library Tab
+        self.playlist_saved_user = QWidget()  # Library Tab
         self.settings_container = QWidget()
         tab_bar.addTab(self.reproductor_container, "Reproductor")
         tab_bar.addTab(self.playlist_saved_user, "Biblioteca")
         tab_bar.addTab(self.settings_container, "Ajustes")
         self.generate_repro_tab()
-        self.generate_playlist_user_tab() # Renamed for clarity
+        self.generate_playlist_user_tab()  # Renamed for clarity
         self.generate_settings_tab()
 
         tab_h_box = QHBoxLayout()
@@ -77,7 +79,7 @@ class MainWindowRep(QMainWindow):
         self.button_random = QPushButton()
         self.button_random.clicked.connect(self.random_mode_toggle)
         self.button_random.setObjectName('button_random')
-        
+
         button_before = QPushButton()
         button_before.clicked.connect(self.play_previous_song)
         button_before.setObjectName('button_before')
@@ -89,7 +91,7 @@ class MainWindowRep(QMainWindow):
         button_next = QPushButton()
         button_next.clicked.connect(self.next_song)
         button_next.setObjectName('button_next')
-        
+
         self.button_repeat = QPushButton()
         self.button_repeat.clicked.connect(self.toggle_repeat_mode)
         self.button_repeat.setObjectName('button_repeat')
@@ -114,23 +116,25 @@ class MainWindowRep(QMainWindow):
 
         self.reproductor_container.setLayout(main_v_box)
 
-    def generate_playlist_user_tab(self): # Renamed
+    def generate_playlist_user_tab(self):  # Renamed
         main_v_box = QVBoxLayout()
-        
+
         label_title = QLabel("Mis Playlists")
-        label_title.setObjectName("playlist-title-style") # Add style if needed
+        label_title.setObjectName(
+            "playlist-title-style")  # Add style if needed
         label_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
+
         # List to display playlists
         self.playlists_list_widget = QListWidget()
-        self.playlists_list_widget.setObjectName("playlists-list-style") # Add style if needed
+        self.playlists_list_widget.setObjectName(
+            "playlists-list-style")  # Add style if needed
         # self.playlists_list_widget.itemDoubleClicked.connect(self.load_playlist) # Connect later
-        
-        buttons_h_box  = QHBoxLayout()
 
-        # --- Buttons --- 
+        buttons_h_box = QHBoxLayout()
+
+        # --- Buttons ---
         button_load = QPushButton('Cargar')
-        button_load.setObjectName('load-style-button') # Changed name
+        button_load.setObjectName('load-style-button')  # Changed name
         button_load.clicked.connect(self.load_selected_playlist)
 
         # button_modify = QPushButton('Modificar') # Modify functionality not implemented yet
@@ -140,18 +144,18 @@ class MainWindowRep(QMainWindow):
         button_delete = QPushButton('Eliminar')
         button_delete.setObjectName('delete-style-button')
         button_delete.clicked.connect(self.delete_selected_playlist)
-        
+
         buttons_h_box.addWidget(button_load)
         # buttons_h_box.addWidget(button_modify)
         buttons_h_box.addWidget(button_delete)
-        
+
         button_container = QWidget()
         button_container.setLayout(buttons_h_box)
-        
+
         main_v_box.addWidget(label_title)
         main_v_box.addWidget(self.playlists_list_widget)
         main_v_box.addWidget(button_container)
-        
+
         self.playlist_saved_user.setLayout(main_v_box)
 
     def generate_settings_tab(self):
@@ -176,17 +180,18 @@ class MainWindowRep(QMainWindow):
         self.open_folder_music_action.setShortcut(QKeySequence("Ctrl+O"))
         self.open_folder_music_action.setStatusTip("Abre tu carpeta de música")
         self.open_folder_music_action.triggered.connect(self.open_music)
-        
+
         self.save_playlist_action = QAction('Guardar Playlist Actual', self)
         self.save_playlist_action.setShortcut(QKeySequence("Ctrl+G"))
-        self.save_playlist_action.setStatusTip("Guarda la lista de canciones actual como una nueva playlist")
+        self.save_playlist_action.setStatusTip(
+            "Guarda la lista de canciones actual como una nueva playlist")
         self.save_playlist_action.triggered.connect(self.playlist_save)
-        
+
         self.sign_off_action = QAction('Cerrar sesión', self)
         self.sign_off_action.setShortcut(QKeySequence("Ctrl+W"))
         self.sign_off_action.setStatusTip("Cerrar sesion actual")
         self.sign_off_action.triggered.connect(self.sign_off)
-        
+
         self.exit_repr_action = QAction('Salir', self)
         self.exit_repr_action.setShortcut(QKeySequence("Ctrl+E"))
         self.exit_repr_action.setStatusTip("Salir del reproductor")
@@ -215,7 +220,8 @@ class MainWindowRep(QMainWindow):
             Qt.DockWidgetArea.LeftDockWidgetArea |
             Qt.DockWidgetArea.RightDockWidgetArea
         )
-        self.songs_list_panel.itemDoubleClicked.connect(self.handle_song_double_click)
+        self.songs_list_panel.itemDoubleClicked.connect(
+            self.handle_song_double_click)
         self.dock.setWidget(self.songs_list_panel)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dock)
 
@@ -233,8 +239,8 @@ class MainWindowRep(QMainWindow):
         )
         selected_folder = QFileDialog.getExistingDirectory(
             None, "Selecciona una carpeta", initial_dir)
-            
-        if selected_folder: # Only proceed if a folder was selected
+
+        if selected_folder:  # Only proceed if a folder was selected
             self.current_music_folder = selected_folder
             icon = QIcon('img/music.png')
             self.songs_list_panel.clear()
@@ -242,32 +248,38 @@ class MainWindowRep(QMainWindow):
             self.song_list = []  # Reset the song list
             try:
                 for archivo in os.listdir(self.current_music_folder):
-                    ruta_archivo = os.path.join(self.current_music_folder, archivo)
+                    ruta_archivo = os.path.join(
+                        self.current_music_folder, archivo)
                     # Basic check for mp3 extension
                     if ruta_archivo.lower().endswith(".mp3"):
                         self.song_list.append(ruta_archivo)  # Add full path
                         nombre_archivo, _ = os.path.splitext(archivo)
                         item = QListWidgetItem(nombre_archivo)
                         item.setIcon(icon)
-                        item.setData(Qt.ItemDataRole.UserRole, ruta_archivo) # Store full path in item data
+                        # Store full path in item data
+                        item.setData(Qt.ItemDataRole.UserRole, ruta_archivo)
                         self.songs_list_panel.addItem(item)
                 if not self.song_list:
-                     QMessageBox.information(self, "Carpeta Vacía", "La carpeta seleccionada no contiene archivos MP3.", QMessageBox.StandardButton.Ok)
+                    QMessageBox.information(self, "Carpeta Vacía", "La carpeta seleccionada no contiene archivos MP3.", QMessageBox.StandardButton.Ok)
             except Exception as e:
-                 QMessageBox.critical(self, "Error al Abrir Carpeta", f"No se pudo leer la carpeta: {e}", QMessageBox.StandardButton.Ok)
+                QMessageBox.critical(self, "Error al Abrir Carpeta",f"No se pudo leer la carpeta: {e}", QMessageBox.StandardButton.Ok)
 
     def playlist_save(self):
         if not self.current_user_id:
-             QMessageBox.warning(self, "Error", "Debe iniciar sesión para guardar playlists.", QMessageBox.StandardButton.Close)
-             return
+            QMessageBox.warning(self, "Error", "Debe iniciar sesión para guardar playlists.", QMessageBox.StandardButton.Close)
+            return
+        
         if len(self.song_list) > 0:
             # Pass the user_id and the current song list to the form
-            self.form_new_playlist = FormListMusic(user_id=self.current_user_id, current_songs=self.song_list)
+            self.form_new_playlist = FormListMusic(
+                user_id=self.current_user_id, current_songs=self.song_list)
             # Connect the signal to reload playlists if saved successfully
-            self.form_new_playlist.playlist_saved.connect(self.load_user_playlists)
-            self.form_new_playlist.exec() # Use exec for modal dialog
+            self.form_new_playlist.playlist_saved.connect(
+                self.load_user_playlists)
+            self.form_new_playlist.exec()  # Use exec for modal dialog
         else:
-            QMessageBox.warning(self, "Lista Vacía", "No hay canciones cargadas para guardar como playlist.", QMessageBox.StandardButton.Close)
+            QMessageBox.warning(
+                self, "Lista Vacía", "No hay canciones cargadas para guardar como playlist.", QMessageBox.StandardButton.Close)
 
     def create_player(self):
         if self.player:
@@ -281,26 +293,27 @@ class MainWindowRep(QMainWindow):
         self.audioOutput = QAudioOutput()
         self.player.setAudioOutput(self.audioOutput)
         self.player.mediaStatusChanged.connect(self.media_status_changed)
-        self.player.errorOccurred.connect(self.handle_player_error) # Add error handling
+        self.player.errorOccurred.connect(
+            self.handle_player_error)  # Add error handling
         self.audioOutput.setVolume(1.0)
 
-    # --- Player Controls & Logic --- 
+    # --- Player Controls & Logic ---
     def media_status_changed(self, status):
         # print('status:', status)
         if status == QMediaPlayer.MediaStatus.LoadedMedia:
-            if self.playing_reproductor: # Only play if intended (prevents auto-play on load)
-                 self.player.play()
+            # Only play if intended (prevents auto-play on load)
+            if self.playing_reproductor:
+                self.player.play()
         elif status == QMediaPlayer.MediaStatus.EndOfMedia:
             if self.is_repeat:
                 self.player.setPosition(0)
                 self.player.play()
             else:
                 self.next_song()
-                
+
     def handle_player_error(self, error, error_string):
         print(f"Player Error: {error}, {error_string}")
-        QMessageBox.critical(self, "Error de Reproducción", f"No se pudo reproducir el archivo:
-{error_string}")
+        QMessageBox.critical(self, "Error de Reproducción", f"No se pudo reproducir el archivo: {error_string}")
         # Optionally, try to play the next song or stop playback
         self.playing_reproductor = False
         self.button_play.setStyleSheet("image: url('styles/img/play.png');")
@@ -308,12 +321,12 @@ class MainWindowRep(QMainWindow):
     def play_pause_song(self):
         if not self.player:
             if not self.song_list: # No songs loaded at all
-                 QMessageBox.warning(self, "Sin Canciones", "Abre una carpeta o carga una playlist.", QMessageBox.StandardButton.Ok)
-                 return
+                QMessageBox.warning(self, "Sin Canciones", "Abre una carpeta o carga una playlist.", QMessageBox.StandardButton.Ok)
+                return
             else: # Songs are loaded, but player not created yet (first play)
-                 self.current_index = 0 # Start from the first song
-                 self.play_song_at_index(self.current_index)
-                 return # play_song_at_index handles playing state
+                self.current_index = 0 # Start from the first song
+                self.play_song_at_index(self.current_index)
+                return # play_song_at_index handles playing state
         
         if self.playing_reproductor:
             self.button_play.setStyleSheet("image: url('styles/img/play.png');")
@@ -323,9 +336,9 @@ class MainWindowRep(QMainWindow):
         else:
             self.button_play.setStyleSheet("image: url('styles/img/stop.png');")
             if self.current_index >= 0: # Resume or play selected
-                 self.player.setPosition(self.current_position)
-                 self.player.play()
-                 self.playing_reproductor = True
+                self.player.setPosition(self.current_position)
+                self.player.play()
+                self.playing_reproductor = True
             # else: # Should be handled by initial check
             #    self.current_index = 0
             #    self.play_song_at_index(self.current_index)
@@ -385,12 +398,11 @@ class MainWindowRep(QMainWindow):
             
             # Check if the file exists before trying to play
             if not os.path.exists(song_path):
-                 QMessageBox.warning(self, "Archivo no encontrado", f"El archivo de canción no se encontró:
-{song_path}")
-                 # Try playing the next song or stop
-                 # self.next_song()
-                 return
-                 
+                QMessageBox.warning(self, "Archivo no encontrado", f"El archivo de canción no se encontró:{song_path}")
+                # Try playing the next song or stop
+                # self.next_song()
+                return
+
             self.player.setSource(source)
             self.current_position = 0 # Start from beginning
             self.playing_reproductor = True
@@ -400,15 +412,16 @@ class MainWindowRep(QMainWindow):
         else:
             print(f"Error: Invalid index {index}")
             # Stop playback if index is invalid
-            if self.player: self.player.stop()
+            if self.player: 
+                self.player.stop()
             self.playing_reproductor = False
             self.button_play.setStyleSheet("image: url('styles/img/play.png');")
             
     # --- Playlist Management (Biblioteca Tab) --- 
     def load_user_playlists(self):
         if not self.current_user_id:
-             # Don't try to load if no user is logged in
-             return 
+            # Don't try to load if no user is logged in
+            return 
         
         self.playlists_list_widget.clear() # Clear existing list
         conn = None
@@ -420,17 +433,17 @@ class MainWindowRep(QMainWindow):
             
             icon = QIcon('img/repro2.jpg') # Example icon for playlists
             for playlist in playlists:
-                 item = QListWidgetItem(playlist["name_playlist"])
-                 item.setIcon(icon)
-                 item.setData(Qt.ItemDataRole.UserRole, playlist["playlist_id"]) # Store playlist_id
-                 self.playlists_list_widget.addItem(item)
-                 
+                item = QListWidgetItem(playlist["name_playlist"])
+                item.setIcon(icon)
+                item.setData(Qt.ItemDataRole.UserRole, playlist["playlist_id"]) # Store playlist_id
+                self.playlists_list_widget.addItem(item)
+                
         except sqlite3.Error as e:
-             QMessageBox.warning(self, "Error de Base de Datos", f"No se pudieron cargar las playlists: {e}", QMessageBox.StandardButton.Ok)
+            QMessageBox.warning(self, "Error de Base de Datos", f"No se pudieron cargar las playlists: {e}", QMessageBox.StandardButton.Ok)
         finally:
-             if conn:
-                 conn.close()
-                 
+            if conn:
+                conn.close()
+                
     def load_selected_playlist(self):
         selected_items = self.playlists_list_widget.selectedItems()
         if not selected_items:
@@ -442,15 +455,15 @@ class MainWindowRep(QMainWindow):
         playlist_name = selected_item.text()
         
         conn = None
+        
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
             cursor.execute("SELECT song_path FROM playlist_songs WHERE playlist_id = ?", (playlist_id,))
             songs = cursor.fetchall()
-            
             if not songs:
-                 QMessageBox.information(self, "Playlist Vacía", f'La playlist "{playlist_name}" no contiene canciones.', QMessageBox.StandardButton.Ok)
-                 return
+                QMessageBox.information(self, "Playlist Vacía", f'La playlist "{playlist_name}" no contiene canciones.', QMessageBox.StandardButton.Ok)
+                return
             
             # --- Update the main song list and panel --- 
             self.songs_list_panel.clear()
@@ -472,12 +485,7 @@ class MainWindowRep(QMainWindow):
                     missing_files.append(song_path)
             
             if missing_files:
-                QMessageBox.warning(self, "Archivos Faltantes",
-                                    f"Algunas canciones de la playlist "{playlist_name}" no se encontraron y no fueron cargadas:
-
-" +
-                                    "
-".join(missing_files), QMessageBox.StandardButton.Ok)
+                QMessageBox.warning(self, "Archivos Faltantes", f"Algunas canciones de la playlist \"{playlist_name}\" no se encontraron y no fueron cargadas: " + ", ".join(missing_files), QMessageBox.StandardButton.Ok)
                                     
             if self.song_list: # If any songs were loaded successfully
                 self.current_index = 0 # Prepare to play the first song
@@ -485,17 +493,16 @@ class MainWindowRep(QMainWindow):
                 # Switch focus to the reproducer tab (optional)
                 # self.centralWidget().setCurrentIndex(0) 
             else: # No valid songs found in the playlist
-                 if self.player: self.player.stop()
-                 self.playing_reproductor = False
-                 self.button_play.setStyleSheet("image: url('styles/img/play.png');")
-                 QMessageBox.warning(self, "Error al Cargar", f'No se encontraron archivos válidos en la playlist "{playlist_name}".', QMessageBox.StandardButton.Ok)
+                if self.player: self.player.stop()
+                self.playing_reproductor = False
+                self.button_play.setStyleSheet("image: url('styles/img/play.png');")
+                QMessageBox.warning(self, "Error al Cargar", f'No se encontraron archivos válidos en la playlist "{playlist_name}".', QMessageBox.StandardButton.Ok)
 
         except sqlite3.Error as e:
-             QMessageBox.warning(self, "Error de Base de Datos", f"No se pudieron cargar las canciones de la playlist: {e}", QMessageBox.StandardButton.Ok)
+            QMessageBox.warning(self, "Error de Base de Datos", f"No se pudieron cargar las canciones de la playlist: {e}", QMessageBox.StandardButton.Ok)
         finally:
-             if conn:
-                 conn.close()
-                 
+            if conn:
+                conn.close()
     def delete_selected_playlist(self):
         selected_items = self.playlists_list_widget.selectedItems()
         if not selected_items:
@@ -506,10 +513,7 @@ class MainWindowRep(QMainWindow):
         playlist_id = selected_item.data(Qt.ItemDataRole.UserRole)
         playlist_name = selected_item.text()
         
-        reply = QMessageBox.question(self, 'Confirmar Eliminación', 
-                                     f'¿Estás seguro de que quieres eliminar la playlist "{playlist_name}"?', 
-                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, 
-                                     QMessageBox.StandardButton.No)
+        reply = QMessageBox.question(self, 'Confirmar Eliminación', f'¿Estás seguro de que quieres eliminar la playlist "{playlist_name}"?', QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
 
         if reply == QMessageBox.StandardButton.Yes:
             conn = None
@@ -527,18 +531,18 @@ class MainWindowRep(QMainWindow):
                 self.load_user_playlists() # Refresh the list
                 
             except sqlite3.Error as e:
-                 QMessageBox.warning(self, "Error de Base de Datos", f"No se pudo eliminar la playlist: {e}", QMessageBox.StandardButton.Ok)
+                QMessageBox.warning(self, "Error de Base de Datos", f"No se pudo eliminar la playlist: {e}", QMessageBox.StandardButton.Ok)
             finally:
-                 if conn:
-                     conn.close()
+                if conn:
+                    conn.close()
 
     # --- Other Actions --- 
     def sign_off(self):
         # Potentially ask for confirmation
         reply = QMessageBox.question(self, 'Cerrar Sesión', 
-                                     '¿Estás seguro de que quieres cerrar sesión?', 
-                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, 
-                                     QMessageBox.StandardButton.No)
+                                    '¿Estás seguro de que quieres cerrar sesión?', 
+                                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, 
+                                    QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
             self.close() # Close the current window
             # Ideally, reopen the login/main menu window here
@@ -551,11 +555,11 @@ class MainWindowRep(QMainWindow):
     def exit_repr(self):
         # Ask for confirmation before exiting
         reply = QMessageBox.question(self, 'Salir', 
-                                     '¿Estás seguro de que quieres salir de Sound Fresh?', 
-                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, 
-                                     QMessageBox.StandardButton.No)
+                                    '¿Estás seguro de que quieres salir de Sound Fresh?', 
+                                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, 
+                                    QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
-             self.close()
+            self.close()
 
 # if __name__ == '__main__':
 #     app = QApplication(sys.argv)
@@ -565,4 +569,3 @@ class MainWindowRep(QMainWindow):
 #     from src.database.db_setup import initialize_database
 #     initialize_database()
 #     sys.exit(app.exec())
-

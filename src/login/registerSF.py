@@ -3,8 +3,7 @@ import sqlite3
 import bcrypt
 import datetime
 from PyQt6 import QtCore
-from PyQt6.QtWidgets import (QLabel, QPushButton, QDateEdit, QLineEdit, QComboBox, 
-                           QFormLayout, QHBoxLayout, QMessageBox, QDialog)
+from PyQt6.QtWidgets import (QLabel, QPushButton, QDateEdit, QLineEdit, QComboBox, QFormLayout, QHBoxLayout, QMessageBox, QDialog)
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt, QDate
 from src.login.constants import city, gender
@@ -132,8 +131,7 @@ class RegisterUserView(QDialog):
         age = fecha_actual.year() - fecha_nacimiento.year()
 
         # Adjust age if birthday hasn't occurred this year
-        if fecha_actual.month() < fecha_nacimiento.month() or \
-           (fecha_actual.month() == fecha_nacimiento.month() and fecha_actual.day() < fecha_nacimiento.day()):
+        if fecha_actual.month() < fecha_nacimiento.month() or (fecha_actual.month() == fecha_nacimiento.month() and fecha_actual.day() < fecha_nacimiento.day()):
             age -= 1
 
         return age
@@ -215,9 +213,8 @@ class RegisterUserView(QDialog):
                 
             cursor.execute("SELECT user_id FROM users WHERE email = ?", (email_sf,))
             if cursor.fetchone():
-                 QMessageBox.warning(self, 'Error', 'Email already registered.', 
-                                     QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
-                 return
+                QMessageBox.warning(self, 'Error', 'Email already registered.', QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+                return
 
             # Insert the new user into the SQLite database
             cursor.execute('''
@@ -227,19 +224,16 @@ class RegisterUserView(QDialog):
             
             conn.commit()
             
-            QMessageBox.information(self, 'Successful Registration', 'User created successfully', 
-                                    QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+            QMessageBox.information(self, 'Successful Registration', 'User created successfully', QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
             self.close()
 
         except sqlite3.IntegrityError as e: # Catch potential unique constraint errors more specifically
-             QMessageBox.warning(self, 'Error', f'Database error: Username or email might already exist. {e}', 
-                                 QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            QMessageBox.warning(self, 'Error', f'Database error: Username or email might already exist. {e}', QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
         except sqlite3.Error as e:
             QMessageBox.warning(self, 'Database Error', f'Could not save user to database: {e}', 
                                 QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
         except Exception as e:
-             QMessageBox.warning(self, 'Error', f'An unexpected error occurred: {e}', 
-                                 QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            QMessageBox.warning(self, 'Error', f'An unexpected error occurred: {e}', QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
         finally:
             if conn:
                 conn.close() # Ensure connection is closed
