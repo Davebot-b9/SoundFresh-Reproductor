@@ -1,22 +1,24 @@
-from pymongo import MongoClient
+\
+import sqlite3
 import bcrypt
 import datetime
 from PyQt6 import QtCore
-from PyQt6.QtWidgets import (QLabel, QPushButton, QDateEdit, QLineEdit, QComboBox, QFormLayout, QHBoxLayout, QMessageBox, QDialog)
+from PyQt6.QtWidgets import (QLabel, QPushButton, QDateEdit, QLineEdit, QComboBox, 
+                           QFormLayout, QHBoxLayout, QMessageBox, QDialog)
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt, QDate
 from src.login.constants import city, gender
-
+from src.database.db_setup import get_db_connection, DATABASE_PATH # Import SQLite connection function
 
 class RegisterUserView(QDialog):
     def __init__(self):
         super().__init__()
-        self.setModal(True)  # type: ignore
+        self.setModal(True)
         self.initialize_ui()
         with open('styles/estilosMenu.css', 'r') as file:
             style = file.read()
         self.setStyleSheet(style)
-        self.retrieve_user_data()
+        # Removed MongoDB data retrieval on init
 
     def initialize_ui(self):
         # Configurar el tamaño, título y ícono de la ventana de registro
@@ -27,7 +29,7 @@ class RegisterUserView(QDialog):
         self.generate_form()
 
     def generate_form(self):
-
+        # ... (UI Generation code remains the same) ...
         message_register = QLabel('Registra todos tus datos:')
         message_register.setObjectName('message-style')
         message_register.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -120,6 +122,7 @@ class RegisterUserView(QDialog):
 
         self.setLayout(main_form)
 
+
     def cancel_register(self):
         self.close()
 
@@ -128,115 +131,115 @@ class RegisterUserView(QDialog):
         fecha_actual = QDate.currentDate()
         age = fecha_actual.year() - fecha_nacimiento.year()
 
-        if fecha_actual.month() < fecha_nacimiento.month() or (fecha_actual.month() == fecha_nacimiento.month() and fecha_actual.day() < fecha_nacimiento.day()):
+        # Adjust age if birthday hasn't occurred this year
+        if fecha_actual.month() < fecha_nacimiento.month() or \
+           (fecha_actual.month() == fecha_nacimiento.month() and fecha_actual.day() < fecha_nacimiento.day()):
             age -= 1
 
         return age
 
-    def retrieve_user_data(self):
-        # URL connection db
-        self.client = MongoClient("mongodb://localhost:27017/")
-        self.db = self.client["RegisterSound"]  # Name Database
-        self.collection = self.db["SounsFreshUsers"]  # Name Collection
-
-        cursor = self.collection.find({})
-
-        for document in cursor:
-            name_db = document["name"]
-            last_name_db = document["last_name"]
-            age_db = document["age"]
-            gender_db = document["gender"]
-            country_db = document["country"]
-            username_db = document["username"]
-            email_db = document["email"]
-            hashed_password_db = document["hashed_password"]
-            registration_date_db = document["registration_date"]
+    # Removed retrieve_user_data (MongoDB specific)
 
     def create_user(self):
         user_sf = self.username_input.text()
         password_sf = self.password.text()
-        hashed_password = bcrypt.hashpw(password_sf.encode('utf-8'), bcrypt.gensalt())
         confirm_sf = self.password_confirm.text()
-        registration_date = datetime.datetime.now()
+        email_sf = self.email_input.text()
+        name_sf = self.name_input.text()
+        lastname_sf = self.lastname_input.text()
+        
+        # --- Input Validation ---
+        if not (password_sf and confirm_sf and user_sf and email_sf and name_sf and lastname_sf):
+            QMessageBox.warning(self, 'Error', 'Please fill in all fields.', 
+                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            return
+        
+        if password_sf != confirm_sf:
+            QMessageBox.warning(self, 'Error', 'Passwords do not match.', 
+                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            return
 
-        if not (password_sf and confirm_sf and user_sf):
-            QMessageBox.warning(self, 'Error',
-            'Please enter valid data',
-            QMessageBox.StandardButton.Close,
-            QMessageBox.StandardButton.Close)
-        elif password_sf != confirm_sf:
-            QMessageBox.warning(self, 'Error',
-            'Passwords do not match',
-            QMessageBox.StandardButton.Close,
-            QMessageBox.StandardButton.Close)
-        else:
-            try:
-                # Validación de usuario y contraseña
-                if len(user_sf) > 10:
-                    QMessageBox.warning(self, 'Error',
-                    'Username must be up to 10 characters',
-                    QMessageBox.StandardButton.Close,
-                    QMessageBox.StandardButton.Close)
-                elif not (user_sf.isalnum() and user_sf.isascii()):
-                    QMessageBox.warning(self, 'Error',
-                    'Username can only contain letters and numbers',
-                    QMessageBox.StandardButton.Close,
-                    QMessageBox.StandardButton.Close)
-                elif not (8 <= len(password_sf) <= 20 and any(c.isdigit() for c in password_sf) and any(c.isupper() for c in password_sf) and any(not c.isalnum() for c in password_sf)):
-                    QMessageBox.warning(self, 'Error', 
-                    'Password must be 8-20 characters long and include at least one uppercase letter, one digit, and one special character',
-                    QMessageBox.StandardButton.Close, 
-                    QMessageBox.StandardButton.Close)
-                else:
-                    # Validación de nombre y apellido (name_sf y lastname_sf)
-                    if not (self.name_input.text().isalpha() and self.lastname_input.text().isalpha()):
-                        QMessageBox.warning(self, 'Error', 
-                        'Name and lastname can only contain letters',
-                        QMessageBox.StandardButton.Close, 
-                        QMessageBox.StandardButton.Close)
-                    else:
-                        # Validación de edad (age_sf)
-                        min_age = QDate.currentDate().addYears(-18)
-                        if self.date_edit.date() > min_age:
-                            QMessageBox.warning(self, 'Error',
-                                                'You must be 18 years old or older to register',
-                                                QMessageBox.StandardButton.Close,
-                                                QMessageBox.StandardButton.Close)
-                        else:
-                            # Validación de email (email_sf)
-                            valid_email_domains = [
-                                '@gmail.com', '@outlook.com', '@hotmail.com']
-                            if not any(domain in self.email_input.text() for domain in valid_email_domains):
-                                QMessageBox.warning(self, 'Error',
-                                'Invalid email format. Please use @gmail.com, @outlook.com, or @hotmail.com',
-                                QMessageBox.StandardButton.Close,
-                                QMessageBox.StandardButton.Close)
-                            else:
-                                # Resto del proceso de creación de usuario
-                                # Utiliza los datos recuperados de la base de datos en lugar de user_sf y otros
-                                new_user = {
-                                    "name": self.name_input.text(),
-                                    "last_name": self.lastname_input.text(),
-                                    "age": self.calculate_age(),
-                                    "gender": self.gender_selection.currentText(),
-                                    "country": self.city_selection.currentText(),
-                                    "username": self.username_input.text(),
-                                    "email": self.email_input.text(),
-                                    "hashed_password": hashed_password,
-                                    "registration_date": registration_date
-                                }
+        if len(user_sf) > 10:
+            QMessageBox.warning(self, 'Error', 'Username must be up to 10 characters.', 
+                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            return
+        
+        if not (user_sf.isalnum() and user_sf.isascii()):
+            QMessageBox.warning(self, 'Error', 'Username can only contain letters and numbers.', 
+                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            return
+            
+        if not (8 <= len(password_sf) <= 20 and any(c.isdigit() for c in password_sf) and \
+                any(c.isupper() for c in password_sf) and any(not c.isalnum() for c in password_sf)):
+            QMessageBox.warning(self, 'Error', 
+                                'Password must be 8-20 characters long and include at least one uppercase letter, one digit, and one special character.', 
+                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            return
 
-                                # Inserta el nuevo usuario en la base de datos
-                                self.collection.insert_one(new_user)
-                                QMessageBox.information(self, 
-                                'Successful Registration',
-                                'User created successfully',
-                                QMessageBox.StandardButton.Ok,
-                                QMessageBox.StandardButton.Ok)
-                                
-                                self.close()
-            except FileNotFoundError as e:
-                QMessageBox.warning(self, 'Error',
-                                    f'User database not found: {e}',
-                                    QMessageBox.StandardButton.Close,
-                                    QMessageBox.StandardButton.Close)
+        if not (name_sf.isalpha() and lastname_sf.isalpha()):
+            QMessageBox.warning(self, 'Error', 'Name and lastname can only contain letters.', 
+                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            return
+            
+        min_age_date = QDate.currentDate().addYears(-18)
+        if self.date_edit.date() > min_age_date:
+            QMessageBox.warning(self, 'Error', 'You must be 18 years old or older to register.', 
+                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            return
+
+        valid_email_domains = ['@gmail.com', '@outlook.com', '@hotmail.com']
+        if not any(domain in email_sf for domain in valid_email_domains):
+            QMessageBox.warning(self, 'Error', 'Invalid email format. Please use @gmail.com, @outlook.com, or @hotmail.com.', 
+                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            return
+        # --- End Input Validation ---
+
+        # Hash the password
+        hashed_password = bcrypt.hashpw(password_sf.encode('utf-8'), bcrypt.gensalt())
+        registration_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        calculated_age = self.calculate_age()
+        selected_gender = self.gender_selection.currentText()
+        selected_country = self.city_selection.currentText()
+
+        conn = None # Initialize conn to None
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+
+            # Check if username or email already exists
+            cursor.execute("SELECT user_id FROM users WHERE username = ?", (user_sf,))
+            if cursor.fetchone():
+                QMessageBox.warning(self, 'Error', 'Username already exists.', 
+                                    QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+                return
+                
+            cursor.execute("SELECT user_id FROM users WHERE email = ?", (email_sf,))
+            if cursor.fetchone():
+                 QMessageBox.warning(self, 'Error', 'Email already registered.', 
+                                     QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+                 return
+
+            # Insert the new user into the SQLite database
+            cursor.execute('''
+                INSERT INTO users (username, hashed_password, name, last_name, age, gender, country, email, registration_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (user_sf, hashed_password, name_sf, lastname_sf, calculated_age, selected_gender, selected_country, email_sf, registration_date))
+            
+            conn.commit()
+            
+            QMessageBox.information(self, 'Successful Registration', 'User created successfully', 
+                                    QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
+            self.close()
+
+        except sqlite3.IntegrityError as e: # Catch potential unique constraint errors more specifically
+             QMessageBox.warning(self, 'Error', f'Database error: Username or email might already exist. {e}', 
+                                 QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+        except sqlite3.Error as e:
+            QMessageBox.warning(self, 'Database Error', f'Could not save user to database: {e}', 
+                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+        except Exception as e:
+             QMessageBox.warning(self, 'Error', f'An unexpected error occurred: {e}', 
+                                 QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+        finally:
+            if conn:
+                conn.close() # Ensure connection is closed

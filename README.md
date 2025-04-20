@@ -1,55 +1,97 @@
-# Planteamiento del Proyecto
+# SoundFresh - Reproductor de Música Desktop
 
-SoundFresh es un emocionante proyecto que demuestra y amplía mis habilidades en el desarrollo de aplicaciones en Python utilizando la potente biblioteca PyQt6. Este proyecto va más allá de ser solo un reproductor de música; es una muestra de mis capacidades técnicas y creativas en acción.
-Tecnologías Destacadas
+SoundFresh es un proyecto de reproductor de música de escritorio desarrollado en Python utilizando la biblioteca PyQt6 para la interfaz gráfica y **SQLite** para la gestión de datos locales (usuarios y playlists).
 
-## En este proyecto, he aplicado varias tecnologías clave:
+## Tecnologías Clave
 
-- PyQt6: Utilicé PyQt6 para crear una interfaz de usuario atractiva y funcional para el reproductor de música. Esta biblioteca me permitió diseñar una experiencia de usuario fluida y atractiva.
+*   **Python:** Lenguaje de programación principal.
+*   **PyQt6:** Biblioteca para la creación de la interfaz gráfica de usuario (GUI).
+*   **SQLite:** Sistema de gestión de bases de datos relacional ligero y basado en archivos, utilizado para almacenar:
+    *   Información de usuarios (credenciales cifradas con bcrypt).
+    *   Playlists creadas por los usuarios.
+*   **bcrypt:** Biblioteca para el hash seguro de contraseñas.
+*   **PyQt6.QtMultimedia:** Módulo para la reproducción de archivos de audio.
 
-- MySQL: Implementé MySQL como base de datos para gestionar los datos de la aplicación. Utilicé MySQL para almacenar información de canciones, artistas y usuarios, permitiendo un acceso eficiente a los datos y una gestión flexible.
+## Funcionalidades Principales
 
-- Captura de Datos y Peticiones de Usuario: Diseñé una interfaz que permite a los usuarios explorar y descubrir música de manera intuitiva. Esto incluye la capacidad de buscar y seleccionar canciones, artistas y géneros, así como la creación de listas de reproducción personalizadas.
+*   **Autenticación de Usuarios:** Registro y login de usuarios con almacenamiento seguro de contraseñas.
+*   **Exploración de Música Local:** Abrir carpetas locales que contengan archivos MP3.
+*   **Reproducción de Música:**
+    *   Controles básicos (Play/Pause, Siguiente, Anterior).
+    *   Modo aleatorio (Shuffle).
+    *   Modo repetición (Repeat song).
+*   **Gestión de Playlists:**
+    *   Guardar la lista de canciones actual como una nueva playlist asociada al usuario.
+    *   Ver las playlists guardadas por el usuario.
+    *   Cargar canciones de una playlist guardada en el reproductor.
+    *   Eliminar playlists guardadas.
+*   **Interfaz Gráfica:**
+    *   Ventana principal con pestañas para Reproductor, Biblioteca (Playlists) y Ajustes (futuro).
+    *   Panel lateral (dock) para mostrar la lista de canciones actual.
+    *   Menú de acciones (Abrir carpeta, Guardar playlist, Cerrar sesión, Salir).
 
-- Validación de Datos y Manejo de Excepciones: En SoundFresh, la validación de datos y el manejo de excepciones son esenciales. Implementé mecanismos de validación de entrada del usuario para garantizar la integridad de los datos y proporcionar retroalimentación útil en caso de errores.
+## Estructura del Proyecto
 
-## Características Destacadas
+```
+/
+|-- data/                     # Directorio para la base de datos SQLite (creado automáticamente)
+|   |-- soundfresh.db         # Archivo de la base de datos SQLite
+|-- img/                      # Imágenes para la interfaz
+|-- src/
+|   |-- database/
+|   |   |-- db_setup.py       # Script para inicializar la base de datos y tablas
+|   |-- login/
+|   |   |-- constants.py      # Constantes (ej. listas para ComboBox)
+|   |   |-- loginSF.py        # Lógica y UI de la ventana de login
+|   |   |-- registerSF.py     # Lógica y UI de la ventana de registro
+|   |-- reproductor/
+|   |   |-- form_playlist.py  # Lógica y UI del formulario para guardar playlists
+|   |   |-- reprocSF.py       # Lógica y UI de la ventana principal del reproductor
+|   |-- __init__.py           # Archivos __init__.py para reconocer los directorios como paquetes
+|-- styles/
+|   |-- estilosMenu.css       # Archivos CSS para estilizar la UI
+|   |-- estilosRep.css
+|   |-- img/                  # Imágenes usadas en los CSS
+|-- main.py                   # Punto de entrada de la aplicación
+|-- README.md                 # Este archivo
+|-- requirements.txt          # (Recomendado) Archivo para listar dependencias
+```
 
-El reproductor de música de SoundFresh ofrece una serie de características destacadas:
+## Cómo Ejecutar
 
-- Descubrimiento Musical: Los usuarios pueden explorar una amplia variedad de géneros musicales y descubrir nuevos artistas independientes. SoundFresh ofrece una plataforma para destacar y apoyar talentos emergentes.
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone <url_del_repositorio>
+    cd <nombre_del_repositorio>
+    ```
+2.  **Instalar dependencias:** (Asegúrate de tener Python y pip instalados)
+    *   Se recomienda crear un entorno virtual:
+        ```bash
+        python -m venv venv
+        source venv/bin/activate  # En Linux/macOS
+        venv\Scripts\activate      # En Windows
+        ```
+    *   Instalar las bibliotecas necesarias (idealmente desde un `requirements.txt`):
+        ```bash
+        pip install PyQt6 bcrypt PyOpenGL # Agrega otras dependencias si son necesarias
+        ```
+        *Si no existe `requirements.txt`, instala manualmente: `pip install PyQt6 bcrypt`*
 
-- Reproducción de Música: La funcionalidad principal de SoundFresh es la reproducción de música. Los usuarios pueden crear listas de reproducción personalizadas, reproducir canciones en orden o al azar, y experimentar una experiencia auditiva inmersiva.
-
-- Interfaz Atractiva: La interfaz de usuario de SoundFresh es intuitiva y atractiva. Los usuarios pueden navegar fácilmente por la aplicación, buscar canciones y artistas, y disfrutar de una experiencia de usuario fluida.
-
-- Gestión de Datos Eficiente: SoundFresh utiliza MySQL para almacenar y gestionar datos de manera eficiente. Esto garantiza un acceso rápido a la información y una experiencia de usuario sin problemas.
-
-## Aprendizaje Continuo
-
-Este proyecto también representa un compromiso con el aprendizaje continuo. A lo largo del desarrollo de SoundFresh, he adquirido nuevas habilidades y conocimientos en Python, PyQt6, MySQL y el desarrollo de aplicaciones de escritorio.
+3.  **Inicializar la base de datos:** (Se ejecuta una vez o si se elimina el archivo `data/soundfresh.db`)
+    ```bash
+    python src/database/db_setup.py
+    ```
+4.  **Ejecutar la aplicación:**
+    ```bash
+    python main.py
+    ```
 
 ## Futuras Mejoras
 
-SoundFresh es un proyecto en constante evolución. En el futuro, planeo agregar más características emocionantes, como la integración de redes sociales para compartir música, recomendaciones personalizadas y una mayor expansión de la base de datos de artistas independientes.
-
-## SoundFresh - Plataforma de Descubrimiento Musical
-
-**SoundFresh** es una plataforma multifacética diseñada para amantes de la música, artistas independientes y entusiastas de la escena musical. A través de esta aplicación, exploramos la diversidad y la calidad de la música independiente mexicana, brindando a los usuarios una experiencia auditiva única y emocionante.
-
-## Descubre Nuevos Talentos
-
-En SoundFresh, creemos en el poder de la música para conectar a las personas y en la importancia de ofrecer una plataforma inclusiva para todos los géneros musicales. Nuestra plataforma te permite descubrir y explorar artistas emergentes en una amplia gama de géneros, desde el rock alternativo y el pop hasta el hip-hop, la música electrónica y mucho más.
-Destacando la Escena Musical Mexicana
-
-Nuestra plataforma pone un énfasis especial en destacar la diversidad y calidad artística de los artistas independientes mexicanos. Queremos romper los estereotipos y mostrar al mundo que la escena musical de México es mucho más que solo el género urbano de moda. En SoundFresh, encontrarás una selección cuidadosamente curada de artistas que están poniendo su pasión y creatividad en cada nota y letra de sus canciones.
-
-## Una Comunidad Musical Inclusiva
-
-En SoundFresh, valoramos y reconocemos tanto a los artistas ya establecidos como a los emergentes. Ofrecemos un espacio donde ambos pueden coexistir y enriquecer la experiencia musical de nuestros usuarios. Nuestra plataforma es un lugar donde los amantes de la música pueden conectarse con los talentos musicales de México y disfrutar de una amplia variedad de estilos y géneros.
-
-## Únete a SoundFresh
-
-Te invitamos a unirte a SoundFresh y sumergirte en un mundo de música fresca, descubrimientos emocionantes y una auténtica conexión con los talentos musicales de México. Explora, descubre y disfruta de una experiencia musical única en SoundFresh.
-
-Únete a nuestra comunidad en crecimiento y descubre cómo SoundFresh está cambiando la forma en que experimentamos la música independiente en México.
+*   Implementar la pestaña de "Ajustes".
+*   Permitir modificar playlists existentes.
+*   Añadir búsqueda dentro de la lista de canciones actual.
+*   Mejorar la gestión de metadatos de las canciones (ID3 tags).
+*   Refinar el manejo de errores y la experiencia de usuario.
+*   Crear un archivo `requirements.txt`.
+*   Empaquetar la aplicación para una distribución más sencilla (usando PyInstaller, cx_Freeze, etc.).

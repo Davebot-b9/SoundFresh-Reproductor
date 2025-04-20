@@ -1,10 +1,12 @@
+
 import sys
-from pymongo import MongoClient
+import sqlite3
 import bcrypt
 from PyQt6.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QMessageBox
 from PyQt6.QtGui import QIcon
 from src.login.registerSF import RegisterUserView
 from src.reproductor.reprocSF import MainWindowRep
+from src.database.db_setup import get_db_connection # Import SQLite connection function
 
 class LoginSF(QDialog):
     """Ventana de inicio de sesión de Sound Fresh."""
@@ -12,9 +14,9 @@ class LoginSF(QDialog):
     def __init__(self, main_menu):
         super().__init__()
         self.setModal(True)
-        self.main_menu = main_menu
+        self.main_menu = main_menu # Assuming main_menu is the parent window that might need closing
+        self.logged_in_user_id = None # Variable to store user_id after login
         self.set_up_UI()
-        self.consult_client_mongo()
         with open('styles/estilosMenu.css', 'r') as file:
             style = file.read()
         self.setStyleSheet(style)
@@ -87,46 +89,73 @@ class LoginSF(QDialog):
         """Cambia el modo de visualización de la contraseña según el estado de la casilla de verificación."""
         self.password_input.setEchoMode(QLineEdit.EchoMode.Normal) if clicked else self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
 
-    def consult_client_mongo(self):
-        self.client = MongoClient('mongodb://localhost:27017/')
-        self.db = self.client["RegisterSound"]
-        self.collection = self.db["SounsFreshUsers"]
-        
     def login_user_sf(self):
-        """Función para el inicio de sesión del usuario."""
+        """Función para el inicio de sesión del usuario usando SQLite."""
         username_login = self.user_input.text()
         password_login = self.password_input.text()
 
+        if not username_login or not password_login:
+            QMessageBox.warning(self, "Login Failed", "Please enter username and password", 
+                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            return
+
+        conn = None
         try:
-            user_data = self.collection.find_one({"username": username_login})
-            if user_data:
-                hashed_password_db = user_data["hashed_password"]
-
-                if bcrypt.checkpw(password_login.encode('utf-8'), hashed_password_db):
-                    QMessageBox.information(self, "Login Success",
-                    "Login successful", QMessageBox.StandardButton.Ok,
-                    QMessageBox.StandardButton.Ok
-                    )
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            
+            # Find user by username
+            cursor.execute("SELECT user_id, username, hashed_password FROM users WHERE username = ?", (username_login,))
+            user_data = cursor.fetchone() # Fetch one record
+            
+            if user_data: # If user exists
+                stored_hashed_password = user_data["hashed_password"] # Access by column name
+                
+                # Check the password
+                if bcrypt.checkpw(password_login.encode('utf-8'), stored_hashed_password):
+                    # Password matches
                     self.is_logged = True
-                    self.main_menu.close()
-                    self.open_main_window()
-                    self.close()
-                else:
-                    QMessageBox.warning(self, "Login Failed", "Incorrect credentials", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
-            else:
-                QMessageBox.warning(self, "Login Failed", "User not found", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+                    self.logged_in_user_id = user_data["user_id"] # Store the user_id
+                    
+                    QMessageBox.information(self, "Login Success", "Login successful", 
+                                            QMessageBox.StandardButton.Ok, QMessageBox.StandardButton.Ok)
 
-        except FileNotFoundError as e:
-            QMessageBox.warning(self, "Error BD", f"Base de datos de usuario no encontrada: {e}", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+                    if self.main_menu:
+                         self.main_menu.close() # Close the previous window (assuming it's the main menu)
+                    self.open_main_window()
+                    self.accept() # Use accept() for successful dialog close
+                else:
+                    # Incorrect password
+                    QMessageBox.warning(self, "Login Failed", "Incorrect credentials", 
+                                        QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            else:
+                # User not found
+                QMessageBox.warning(self, "Login Failed", "User not found", 
+                                    QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+
+        except sqlite3.Error as e:
+            QMessageBox.warning(self, "Database Error", f"Error accessing database: {e}", 
+                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
         except Exception as e:
-            QMessageBox.warning(self, "Error Servidor", f"Error en el servidor: {e}", QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+            QMessageBox.warning(self, "Error", f"An unexpected error occurred: {e}", 
+                                QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+        finally:
+            if conn:
+                conn.close()
 
     def register_user_sf(self):
         """Abre la ventana de registro de usuario al hacer clic en el botón de registro."""
         self.new_user_form_sf = RegisterUserView()
-        self.new_user_form_sf.show()
+        self.new_user_form_sf.exec() # Use exec() for modal dialog behavior
 
     def open_main_window(self):
         """Abre la ventana principal después de un inicio de sesión exitoso."""
-        self.reproductor_window = MainWindowRep()
-        self.reproductor_window.show()
+        if self.logged_in_user_id:
+            # Pass the user_id to the main window
+            self.reproductor_window = MainWindowRep(user_id=self.logged_in_user_id) 
+            self.reproductor_window.show()
+        else:
+             # Should not happen if login was successful, but good to handle
+             QMessageBox.critical(self, "Error", "Could not open main window: User ID not found.",
+                                 QMessageBox.StandardButton.Close, QMessageBox.StandardButton.Close)
+
